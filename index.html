@@ -1,0 +1,138 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selamat Datang di Kabupaten Grobogan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+        .hero {
+            background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Navbar -->
+    <nav class="bg-green-600 text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Kabupaten Grobogan</h1>
+            <ul class="flex space-x-4">
+                <li><a href="#beranda" class="hover:text-gray-200">Beranda</a></li>
+                <li><a href="#tentang" class="hover:text-gray-200">Tentang</a></li>
+                <li><a href="#budaya" class="hover:text-gray-200">Budaya</a></li>
+                <li><a href="#wisata" class="hover:text-gray-200">Wisata</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="beranda" class="hero h-96 flex items-center justify-center text-white">
+        <div class="text-center bg-black bg-opacity-50 p-6 rounded-lg">
+            <h2 class="text-4xl font-bold mb-4">Selamat Datang di Kabupaten Grobogan</h2>
+            <p class="text-lg">Bumi yang kaya akan budaya, sejarah, dan keindahan alam.</p>
+        </div>
+    </section>
+
+    <!-- Tentang Section -->
+    <section id="tentang" class="py-12 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-green-600 mb-8">Tentang Grobogan</h2>
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 p-4">
+                    <img src="https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Pemandangan Grobogan" class="rounded-lg shadow-lg">
+                </div>
+                <div class="md:w-1/2 p-4">
+                    <p class="text-gray-700">Kabupaten Grobogan adalah salah satu kabupaten di Jawa Tengah yang terkenal dengan kekayaan alam dan budayanya. Berpusat di Purwodadi, Grobogan memiliki luas wilayah sekitar 2.023 km² dan dikenal sebagai lumbung padi Jawa Tengah. Selain itu, Grobogan juga memiliki sejarah panjang dengan berbagai situs bersejarah dan tradisi yang masih terjaga.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Budaya Section -->
+    <section id="budaya" class="py-12 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-green-600 mb-8">Budaya Grobogan</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-2">Tari Gambyong</h3>
+                    <p class="text-gray-700">Tari tradisional yang anggun, sering ditampilkan dalam acara budaya dan perayaan di Grobogan.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-2">Wayang Kulit</h3>
+                    <p class="text-gray-700">Seni pertunjukan tradisional yang menceritakan kisah epik Ramayana dan Mahabharata.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-2">Festival Bledug Kuwu</h3>
+                    <p class="text-gray-700">Perayaan unik yang menampilkan fenomena lumpur panas di Bledug Kuwu, atraksi khas Grobogan.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wisata Section -->
+    <section id="wisata" class="py-12 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-green-600 mb-8">Destinasi Wisata</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gray-100 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-2">Bledug Kuwu</h3>
+                    <p class="text-gray-700">Fenomena geologi unik berupa semburan lumpur panas yang menarik wisatawan lokal dan mancanegara.</p>
+                </div>
+                <div class="bg-gray-100 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-2">Waduk Kedung Ombo</h3>
+                    <p class="text-gray-700">Danau buatan yang menawarkan pemandangan indah dan spot memancing yang populer.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-green-600 text-white p-4 text-center">
+        <p>&copy; 2025 Kabupaten Grobogan. All rights reserved.</p>
+    </footer>
+</body>
+</html>
